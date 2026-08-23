@@ -75,9 +75,9 @@ fun WidgetContent(dateStr: String, routine: RoutineEntity?) {
         ) {
             // Left: SYSTEM SECURE + PHASE
             Column(modifier = GlanceModifier.defaultWeight()) {
-                Text("SYSTEM SECURE", style = TextStyle(color = DoomGreen, fontSize = 7.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace))
+                Text("SYSTEM SECURE", style = TextStyle(color = DoomGreen, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace))
                 if (routine != null) {
-                    Text(routine.phase.uppercase(), style = TextStyle(color = White, fontSize = 10.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace), modifier = GlanceModifier.padding(top = 2.dp))
+                    Text(routine.phase.uppercase(), style = TextStyle(color = White, fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace), modifier = GlanceModifier.padding(top = 2.dp))
                 }
             }
 
@@ -89,30 +89,30 @@ fun WidgetContent(dateStr: String, routine: RoutineEntity?) {
             ) {
                 Text(
                     text = "<",
-                    style = TextStyle(color = ThorCyan, fontSize = 14.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace),
+                    style = TextStyle(color = ThorCyan, fontSize = 20.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace),
                     modifier = GlanceModifier.padding(end = 6.dp).clickable(actionRunCallback<PreviousDayActionCallback>())
                 )
                 
                 Box(contentAlignment = Alignment.Center) {
-                    Text(dateStr.uppercase(), style = TextStyle(color = DangerRed, fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace), modifier = GlanceModifier.padding(end = 2.dp))
-                    Text(dateStr.uppercase(), style = TextStyle(color = ThorCyan, fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace), modifier = GlanceModifier.padding(start = 2.dp))
-                    Text(dateStr.uppercase(), style = TextStyle(color = White, fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace))
+                    Text(dateStr.uppercase(), style = TextStyle(color = DangerRed, fontSize = 28.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace), modifier = GlanceModifier.padding(end = 3.dp))
+                    Text(dateStr.uppercase(), style = TextStyle(color = ThorCyan, fontSize = 28.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace), modifier = GlanceModifier.padding(start = 3.dp))
+                    Text(dateStr.uppercase(), style = TextStyle(color = White, fontSize = 28.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace))
                 }
 
                 Text(
                     text = ">",
-                    style = TextStyle(color = ThorCyan, fontSize = 14.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace),
+                    style = TextStyle(color = ThorCyan, fontSize = 20.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace),
                     modifier = GlanceModifier.padding(start = 6.dp).clickable(actionRunCallback<NextDayActionCallback>())
                 )
             }
 
             // Right: DAILY OVERRIDE + Target text
             Column(modifier = GlanceModifier.defaultWeight(), horizontalAlignment = Alignment.End) {
-                Text("DAILY OVERRIDE", style = TextStyle(color = ThorCyan, fontSize = 7.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace))
+                Text("DAILY OVERRIDE", style = TextStyle(color = ThorCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace))
                 if (routine != null) {
                     Text(
                         text = routine.target.uppercase(),
-                        style = TextStyle(color = DangerRed, fontSize = 8.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace, textAlign = TextAlign.End),
+                        style = TextStyle(color = DangerRed, fontSize = 14.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace, textAlign = TextAlign.End),
                         maxLines = 2,
                         modifier = GlanceModifier.padding(top = 2.dp)
                     )
@@ -156,14 +156,14 @@ fun WidgetMechaCard(title: String, content: String, color: Color, modifier: Glan
         ) {
             Text(
                 text = title,
-                style = TextStyle(color = ColorProvider(color, color), fontSize = 9.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace),
+                style = TextStyle(color = ColorProvider(color, color), fontSize = 14.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace),
                 modifier = GlanceModifier.padding(bottom = 2.dp)
             )
             
             Text(
                 text = content,
-                style = TextStyle(color = ColorProvider(Color.White, Color.White), fontSize = 10.sp, fontFamily = FontFamily.Monospace),
-                maxLines = 2
+                style = TextStyle(color = ColorProvider(Color.White, Color.White), fontSize = 18.sp, fontFamily = FontFamily.Monospace),
+                maxLines = 4
             )
         }
     }

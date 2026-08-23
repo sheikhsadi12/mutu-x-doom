@@ -74,7 +74,7 @@ fun DashboardScreen(viewModel: RoutineViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .aspectRatio(2f) // Forces the 2:1 constraint
+                .aspectRatio(1.5f) // Forces the 3:2 constraint
                 .shadow(elevation = 30.dp, shape = CutCornerShape(16.dp), spotColor = DoomGreen, ambientColor = DoomGreen)
                 .background(Color(0xCC050914), CutCornerShape(16.dp))
                 .border(2.dp, Color.White.copy(alpha = 0.05f), CutCornerShape(16.dp))
@@ -92,12 +92,12 @@ fun DashboardScreen(viewModel: RoutineViewModel) {
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Box(modifier = Modifier.size(8.dp).background(DoomGreen, CutCornerShape(2.dp)))
-                        Text("SYSTEM SECURE", color = DoomGreen, fontSize = 9.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace, letterSpacing = 0.1.em)
+                        Text("SYSTEM SECURE", color = DoomGreen, fontSize = 14.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace, letterSpacing = 0.1.em)
                     }
                     if (currentRoutine != null) {
                         StaticGlitchText(
                             text = currentRoutine!!.phase.uppercase(),
-                            fontSize = 18.sp,
+                            fontSize = 24.sp,
                             color = Color.White
                         )
                     }
@@ -114,9 +114,9 @@ fun DashboardScreen(viewModel: RoutineViewModel) {
                     }
                     StaticGlitchText(
                         text = currentDate.format(dateFormatter).uppercase(),
-                        fontSize = 32.sp,
+                        fontSize = 48.sp,
                         color = Color.White,
-                        modifier = Modifier.padding(horizontal = 4.dp)
+                        modifier = Modifier.padding(horizontal = 12.dp)
                     )
                     IconButton(onClick = { viewModel.nextDay() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next", tint = ThorCyan)
@@ -125,12 +125,12 @@ fun DashboardScreen(viewModel: RoutineViewModel) {
 
                 // Right: "DAILY OVERRIDE" + Target text
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("DAILY OVERRIDE", color = ThorCyan, fontSize = 9.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace, letterSpacing = 0.1.em)
+                        Text("DAILY OVERRIDE", color = ThorCyan, fontSize = 14.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace, letterSpacing = 0.1.em)
                     if (currentRoutine != null) {
                         Text(
                             text = currentRoutine!!.target.uppercase(),
                             color = DangerRed,
-                            fontSize = 12.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.Monospace,
                             textAlign = TextAlign.End,
@@ -193,6 +193,7 @@ fun DashboardScreen(viewModel: RoutineViewModel) {
 
 @Composable
 fun StaticGlitchText(text: String, fontSize: TextUnit, color: Color, modifier: Modifier = Modifier) {
+    val offset = (fontSize.value / 12).dp
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Text(
             text = text,
@@ -200,7 +201,7 @@ fun StaticGlitchText(text: String, fontSize: TextUnit, color: Color, modifier: M
             fontSize = fontSize,
             fontWeight = FontWeight.Black,
             fontFamily = FontFamily.Monospace,
-            modifier = Modifier.offset(x = (-2).dp)
+            modifier = Modifier.offset(x = -offset)
         )
         Text(
             text = text,
@@ -208,7 +209,7 @@ fun StaticGlitchText(text: String, fontSize: TextUnit, color: Color, modifier: M
             fontSize = fontSize,
             fontWeight = FontWeight.Black,
             fontFamily = FontFamily.Monospace,
-            modifier = Modifier.offset(x = 2.dp)
+            modifier = Modifier.offset(x = offset)
         )
         Text(
             text = text,
@@ -255,7 +256,7 @@ fun MechaCard(modifier: Modifier = Modifier, title: String, content: String, col
                     Text(
                         text = title.uppercase(),
                         color = color,
-                        fontSize = 11.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = FontFamily.Monospace
                     )
@@ -265,9 +266,9 @@ fun MechaCard(modifier: Modifier = Modifier, title: String, content: String, col
             Text(
                 text = highlightExamText(content),
                 color = Color.White,
-                fontSize = 13.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                lineHeight = 16.sp,
+                lineHeight = 28.sp,
                 fontFamily = FontFamily.Monospace,
                 maxLines = 4,
                 overflow = TextOverflow.Ellipsis
