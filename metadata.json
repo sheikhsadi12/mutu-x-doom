@@ -1,0 +1,6 @@
+{
+  "name": "Doom Vs Thor Routine",
+  "description": "A futuristic, Sci-Fi HUD daily routine tracker themed around a Doctor Doom vs. Thor metaverse battle.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
