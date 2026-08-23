@@ -1,7 +1,6 @@
 package com.example.data
 
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
 
 class RoutineRepository(private val routineDao: RoutineDao) {
 
@@ -9,37 +8,17 @@ class RoutineRepository(private val routineDao: RoutineDao) {
         return routineDao.getRoutineByDateKey(dateKey)
     }
 
+    suspend fun getRoutineByDateKeySync(dateKey: String): RoutineEntity? {
+        return routineDao.getRoutineByDateKeySync(dateKey)
+    }
+
     suspend fun updateRoutine(routine: RoutineEntity) {
         routineDao.updateRoutine(routine)
     }
 
-    suspend fun initializeDataIfNeeded() {
+    suspend fun ensureDataInitialized() {
         if (routineDao.getCount() == 0) {
-            val initialData = listOf(
-                RoutineEntity(dateKey="2026-08-22", displayDate="২২ আগস্ট (শনি)", phase="Phase 1", morning="গতিবিদ্যা-১", noon="রাসায়নিক পরিবর্তন-১ + C-01 ম্যাথ", night="C-01 এর গাণিতিক সমস্যা", target="C-01 গাণিতিক সমস্যা", ratio="3:1"),
-                RoutineEntity(dateKey="2026-08-23", displayDate="২৩ আগস্ট (রবি)", phase="Phase 1", morning="গতিবিদ্যা-২", noon="রাসায়নিক পরিবর্তন-২ + C-01 Raw MCQ", night="🎯 C-01 ফুল রিভিশন (কাল এক্সাম)", target="C-01 এক্সাম প্রস্তুতি", ratio="3:1"),
-                RoutineEntity(dateKey="2026-08-24", displayDate="২৪ আগস্ট (সোম)", phase="Phase 1", morning="গতিবিদ্যা-৩", noon="🎯 অফলাইন এক্সাম: C-01", night="M-01 (সরলরেখা) সূত্র রিভিউ", target="M-01 রিভিশন", ratio="3:1")
-            )
-            // Seed a few more days dynamically to ensure it works beyond the 24th
-            val mutableData = initialData.toMutableList()
-            var currentDate = LocalDate.of(2026, 8, 25)
-            for (i in 0 until 14) {
-                val dateKeyStr = currentDate.toString()
-                mutableData.add(
-                    RoutineEntity(
-                        dateKey = dateKeyStr,
-                        displayDate = "${currentDate.dayOfMonth} Month", // placeholder
-                        phase = "Phase 2",
-                        morning = "Pending data",
-                        noon = "Pending data",
-                        night = "Pending data",
-                        target = "Next Assignment",
-                        ratio = "3:1"
-                    )
-                )
-                currentDate = currentDate.plusDays(1)
-            }
-            routineDao.insertAll(mutableData)
+            AppDatabase.prepopulateDatabase(routineDao)
         }
     }
 }
