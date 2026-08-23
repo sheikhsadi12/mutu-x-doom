@@ -1,3 +1,8 @@
 package com.example.widget
 
-typealias RoutineWidgetReceiver = DoomsdayWidgetReceiver
+import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
+
+class RoutineWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = DoomsdayWidget()
+}

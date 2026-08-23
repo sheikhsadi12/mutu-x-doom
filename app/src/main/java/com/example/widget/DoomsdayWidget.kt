@@ -350,13 +350,12 @@ class CycleRatioActionCallback : ActionCallback {
         val db = AppDatabase.getDatabase(context)
         val routine = db.routineDao().getRoutineByDateKeySync(dateKey) ?: return
 
-        val ratios = listOf("3:1", "3:2", "1:2", "2:1", "4:1")
+        val ratios = listOf("3:1", "3:2", "3:3", "2:1", "2:2", "4:1", "1:2", "2:4")
         val currentIndex = ratios.indexOf(routine.ratio)
         val nextIndex = if (currentIndex == -1) 0 else (currentIndex + 1) % ratios.size
 
         db.routineDao().updateRoutine(routine.copy(ratio = ratios[nextIndex]))
         DoomsdayWidget().update(context, glanceId)
-        RoutineWidget().update(context, glanceId)
     }
 }
 
@@ -370,11 +369,9 @@ class WidgetNextDayActionCallback : ActionCallback {
             val nextDay = LocalDate.ofEpochDay(currentMillis / (24 * 60 * 60 * 1000)).plusDays(1)
             prefs.toMutablePreferences().apply {
                 this[DoomsdayWidget.dateKey] = nextDay.toEpochDay() * 24 * 60 * 60 * 1000
-                this[RoutineWidget.dateKey] = nextDay.toEpochDay() * 24 * 60 * 60 * 1000
             }
         }
         DoomsdayWidget().update(context, glanceId)
-        RoutineWidget().update(context, glanceId)
     }
 }
 
@@ -388,11 +385,9 @@ class WidgetPreviousDayActionCallback : ActionCallback {
             val prevDay = LocalDate.ofEpochDay(currentMillis / (24 * 60 * 60 * 1000)).minusDays(1)
             prefs.toMutablePreferences().apply {
                 this[DoomsdayWidget.dateKey] = prevDay.toEpochDay() * 24 * 60 * 60 * 1000
-                this[RoutineWidget.dateKey] = prevDay.toEpochDay() * 24 * 60 * 60 * 1000
             }
         }
         DoomsdayWidget().update(context, glanceId)
-        RoutineWidget().update(context, glanceId)
     }
 }
 

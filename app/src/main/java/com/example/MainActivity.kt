@@ -428,7 +428,7 @@ fun EditRoutineBottomSheet(
     var ratio by remember { mutableStateOf(routine.ratio) }
     var ratioDropdownExpanded by remember { mutableStateOf(false) }
 
-    val ratioOptions = listOf("3:1", "3:2", "1:2", "2:1", "4:1")
+    val ratioOptions = listOf("3:1", "3:2", "3:3", "2:1", "2:2", "4:1", "1:2", "2:4")
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
