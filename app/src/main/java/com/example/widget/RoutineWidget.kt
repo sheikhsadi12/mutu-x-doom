@@ -20,6 +20,7 @@ import androidx.glance.text.TextStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextAlign
 import androidx.glance.text.FontFamily
+import androidx.glance.appwidget.cornerRadius
 import com.example.data.AppDatabase
 import com.example.data.RoutineEntity
 import kotlinx.coroutines.flow.firstOrNull
@@ -53,7 +54,7 @@ class RoutineWidget : GlanceAppWidget() {
 
 @Composable
 fun WidgetContent(dateStr: String, routine: RoutineEntity?) {
-    val BackgroundDark = ColorProvider(Color(0xFF050914), Color(0xFF050914))
+    val BackgroundDark = ColorProvider(Color(0xA6050914), Color(0xA6050914)) // 65% transparent Doomsday Glass
     val DoomGreenColor = Color(0xFF00E676)
     val ThorCyanColor = Color(0xFF00E5FF)
     val DangerRedColor = Color(0xFFFF2A2A)
@@ -66,7 +67,8 @@ fun WidgetContent(dateStr: String, routine: RoutineEntity?) {
         modifier = GlanceModifier
             .fillMaxSize()
             .background(BackgroundDark)
-            .padding(12.dp)
+            .cornerRadius(24.dp)
+            .padding(16.dp)
     ) {
         // Top Row (3 Columns)
         Row(
@@ -139,25 +141,27 @@ fun WidgetContent(dateStr: String, routine: RoutineEntity?) {
 
 @Composable
 fun WidgetMechaCard(title: String, content: String, color: Color, modifier: GlanceModifier = GlanceModifier) {
-    val borderColor = ColorProvider(color.copy(alpha = 0.5f), color.copy(alpha = 0.5f))
-    val glassColor = ColorProvider(Color(0xD9050914), Color(0xD9050914))
+    val borderColor = ColorProvider(color.copy(alpha = 0.4f), color.copy(alpha = 0.4f))
+    val glassColor = ColorProvider(Color(0x66050914), Color(0x66050914)) // More transparent for premium look
     
     Box(
         modifier = modifier
             .fillMaxHeight()
             .background(borderColor)
+            .cornerRadius(12.dp)
             .padding(1.dp) // Simulated Border thickness
     ) {
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
                 .background(glassColor)
-                .padding(6.dp)
+                .cornerRadius(11.dp)
+                .padding(12.dp)
         ) {
             Text(
-                text = title,
+                text = "/// $title",
                 style = TextStyle(color = ColorProvider(color, color), fontSize = 14.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace),
-                modifier = GlanceModifier.padding(bottom = 2.dp)
+                modifier = GlanceModifier.padding(bottom = 6.dp)
             )
             
             Text(
