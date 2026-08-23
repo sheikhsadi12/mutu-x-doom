@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import androidx.glance.appwidget.updateAll
+import com.example.widget.RoutineWidget
 
 class RoutineViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: RoutineRepository
@@ -68,6 +70,30 @@ class RoutineViewModel(application: Application) : AndroidViewModel(application)
     fun updateRoutine(routine: RoutineEntity) {
         viewModelScope.launch {
             repository.updateRoutine(routine)
+            RoutineWidget().updateAll(getApplication())
+        }
+    }
+    
+    fun addNext30Days() {
+        viewModelScope.launch {
+            // Find the last date we have, or use today
+            val latestDate = _currentDate.value
+            for (i in 1..30) {
+                val newDate = latestDate.plusDays(i.toLong())
+                val dateStr = newDate.format(dateFormatter)
+                // Add dummy data for that date
+                repository.updateRoutine(
+                    RoutineEntity(
+                        dateStr = dateStr,
+                        phase = "PHASE X",
+                        target = "NEW TARGET ASSIGNED",
+                        morning = "Pending data upload...",
+                        noon = "Pending data upload...",
+                        night = "Pending data upload..."
+                    )
+                )
+            }
+            RoutineWidget().updateAll(getApplication())
         }
     }
 }

@@ -8,6 +8,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,21 +36,53 @@ import com.example.ui.theme.BackgroundDark
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.DoomGreen
 import com.example.ui.theme.ThorCyan
+import com.example.ui.theme.OrbitronFamily
+import com.example.ui.theme.HindSiliguriFamily
+import androidx.compose.ui.platform.LocalContext
+import com.example.widget.WidgetPreferences
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-fun DashboardScreen(viewModel: RoutineViewModel) {
+fun DashboardScreen(viewModel: RoutineViewModel, onOpenWidgetEditor: () -> Unit = {}) {
     val currentDate by viewModel.currentDate.collectAsState()
     val currentRoutine by viewModel.currentRoutine.collectAsState()
     var showEditDialog by remember { mutableStateOf(false) }
     
     val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
+    val scale = WidgetPreferences.getScale(LocalContext.current)
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BackgroundDark)
+    Scaffold(
+        containerColor = Color.Transparent,
+        topBar = {
+            @OptIn(ExperimentalMaterial3Api::class)
+            TopAppBar(
+                title = { Text("DOOMSDAY PROTOCOL", fontFamily = OrbitronFamily, fontWeight = FontWeight.Bold, color = Color(0xFF00E676)) },
+                actions = {
+                    IconButton(onClick = onOpenWidgetEditor) {
+                        Icon(Icons.Filled.Settings, contentDescription = "Widget Settings", tint = Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+            )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { viewModel.addNext30Days() },
+                containerColor = Color(0xFF00E676),
+                contentColor = Color.Black
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add 30 Days")
+                Spacer(Modifier.width(8.dp))
+                Text("ADD 30 DAYS", fontFamily = OrbitronFamily, fontWeight = FontWeight.Bold)
+            }
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(BackgroundDark)
             .drawBehind {
                 // Deep Space Scanlines & Grid
                 val gridSpacing = 40.dp.toPx()
@@ -92,12 +126,12 @@ fun DashboardScreen(viewModel: RoutineViewModel) {
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Box(modifier = Modifier.size(8.dp).background(DoomGreen, CutCornerShape(2.dp)))
-                        Text("SYSTEM SECURE", color = DoomGreen, fontSize = 14.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace, letterSpacing = 0.1.em)
+                        Text("SYSTEM SECURE", color = DoomGreen, fontSize = (14 * scale).sp, fontWeight = FontWeight.Bold, fontFamily = OrbitronFamily, letterSpacing = 0.1.em)
                     }
                     if (currentRoutine != null) {
                         StaticGlitchText(
                             text = currentRoutine!!.phase.uppercase(),
-                            fontSize = 24.sp,
+                            fontSize = (24 * scale).sp,
                             color = Color.White
                         )
                     }
@@ -114,7 +148,7 @@ fun DashboardScreen(viewModel: RoutineViewModel) {
                     }
                     StaticGlitchText(
                         text = currentDate.format(dateFormatter).uppercase(),
-                        fontSize = 48.sp,
+                        fontSize = (48 * scale).sp,
                         color = Color.White,
                         modifier = Modifier.padding(horizontal = 12.dp)
                     )
@@ -125,14 +159,14 @@ fun DashboardScreen(viewModel: RoutineViewModel) {
 
                 // Right: "DAILY OVERRIDE" + Target text
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("DAILY OVERRIDE", color = ThorCyan, fontSize = 14.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace, letterSpacing = 0.1.em)
+                        Text("DAILY OVERRIDE", color = ThorCyan, fontSize = (14 * scale).sp, fontWeight = FontWeight.Bold, fontFamily = OrbitronFamily, letterSpacing = 0.1.em)
                     if (currentRoutine != null) {
                         Text(
                             text = currentRoutine!!.target.uppercase(),
                             color = DangerRed,
-                            fontSize = 16.sp,
+                            fontSize = (16 * scale).sp,
                             fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = OrbitronFamily,
                             textAlign = TextAlign.End,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
@@ -157,7 +191,7 @@ fun DashboardScreen(viewModel: RoutineViewModel) {
                 }
             } else {
                 Box(modifier = Modifier.weight(0.65f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Text("NO DATA PROTOCOL FOR THIS DATE", color = ThorCyan, fontFamily = FontFamily.Monospace)
+                    Text("NO DATA PROTOCOL FOR THIS DATE", color = ThorCyan, fontFamily = OrbitronFamily)
                 }
             }
         }
@@ -186,9 +220,11 @@ fun DashboardScreen(viewModel: RoutineViewModel) {
             onSave = { updatedRoutine ->
                 viewModel.updateRoutine(updatedRoutine)
                 showEditDialog = false
-            }
+            },
+            scale = scale
         )
     }
+    } // Scaffold close
 }
 
 @Composable
@@ -200,7 +236,7 @@ fun StaticGlitchText(text: String, fontSize: TextUnit, color: Color, modifier: M
             color = DangerRed.copy(alpha = 0.8f),
             fontSize = fontSize,
             fontWeight = FontWeight.Black,
-            fontFamily = FontFamily.Monospace,
+            fontFamily = OrbitronFamily,
             modifier = Modifier.offset(x = -offset)
         )
         Text(
@@ -208,7 +244,7 @@ fun StaticGlitchText(text: String, fontSize: TextUnit, color: Color, modifier: M
             color = ThorCyan.copy(alpha = 0.8f),
             fontSize = fontSize,
             fontWeight = FontWeight.Black,
-            fontFamily = FontFamily.Monospace,
+            fontFamily = OrbitronFamily,
             modifier = Modifier.offset(x = offset)
         )
         Text(
@@ -216,13 +252,13 @@ fun StaticGlitchText(text: String, fontSize: TextUnit, color: Color, modifier: M
             color = color,
             fontSize = fontSize,
             fontWeight = FontWeight.Black,
-            fontFamily = FontFamily.Monospace,
+            fontFamily = OrbitronFamily,
         )
     }
 }
 
 @Composable
-fun MechaCard(modifier: Modifier = Modifier, title: String, content: String, color: Color) {
+fun MechaCard(modifier: Modifier = Modifier, title: String, content: String, color: Color, scale: Float = 1.0f) {
     Box(
         modifier = modifier
             .fillMaxHeight()
@@ -244,34 +280,39 @@ fun MechaCard(modifier: Modifier = Modifier, title: String, content: String, col
             .background(Color(0xD9050914), CutCornerShape(10.dp)) // Glass dark with high opacity
             .padding(12.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    // Static Inner Indicator
-                    Box(modifier = Modifier.size(6.dp).background(color, CutCornerShape(2.dp)))
-                    Text(
-                        text = title.uppercase(),
-                        color = color,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Monospace
-                    )
-                }
+                // Static Inner Indicator
+                Box(modifier = Modifier.size(6.dp).background(color, CutCornerShape(2.dp)))
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = title.uppercase(),
+                    color = color,
+                    fontSize = (18 * scale).sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = OrbitronFamily,
+                    letterSpacing = 0.1.em
+                )
             }
             
             Text(
                 text = highlightExamText(content),
                 color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                lineHeight = 28.sp,
-                fontFamily = FontFamily.Monospace,
+                fontSize = (22 * scale).sp,
+                fontWeight = FontWeight.Normal,
+                lineHeight = (32 * scale).sp,
+                fontFamily = HindSiliguriFamily,
                 maxLines = 4,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -305,7 +346,8 @@ fun highlightExamText(text: String): androidx.compose.ui.text.AnnotatedString {
 fun EditRoutineDialog(
     routine: RoutineEntity,
     onDismiss: () -> Unit,
-    onSave: (RoutineEntity) -> Unit
+    onSave: (RoutineEntity) -> Unit,
+    scale: Float = 1.0f
 ) {
     var morning by remember { mutableStateOf(routine.morning) }
     var noon by remember { mutableStateOf(routine.noon) }
@@ -326,7 +368,7 @@ fun EditRoutineDialog(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("Edit Routine: ${routine.dateStr}", color = DoomGreen, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace, fontSize = 18.sp)
+                Text("Edit Routine: ${routine.dateStr}", color = DoomGreen, fontWeight = FontWeight.Bold, fontFamily = OrbitronFamily, fontSize = (18 * scale).sp)
                 
                 OutlinedTextField(
                     value = morning,
