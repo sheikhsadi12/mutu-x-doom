@@ -1,0 +1,165 @@
+name: Build and Release Debug APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Verify Java environment
+        run: |
+          echo "JAVA_HOME is set to: $JAVA_HOME"
+          java -version
+          
+          # Detect Java major version
+          JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F '.' '{if ($1 == 1) print $2; else print $1}')
+          
+          if [ -z "$JAVA_VERSION" ]; then
+            echo "Error: Could not detect Java version."
+            exit 1
+          fi
+          
+          echo "Detected Java Major Version: $JAVA_VERSION"
+          
+          if [ "$JAVA_VERSION" -lt 17 ]; then
+            echo "Error: Java version is lower than 17."
+            exit 1
+          fi
+          
+          echo "Java environment is correctly configured."
+
+      - name: Set up Gradle 9.3.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.1'
+
+      - name: Create temporary debug keystore
+        run: |
+          if [ ! -f "./debug.keystore" ]; then
+            echo "Generating temporary debug.keystore..."
+            keytool -genkey -v -keystore ./debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          else
+            echo "debug.keystore already exists."
+          fi
+          
+          if [ ! -f "./debug.keystore" ]; then
+            echo "Error: Failed to create debug.keystore"
+            exit 1
+          fi
+          echo "debug.keystore is available."
+
+      - name: Build the debug APK
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
+
+      - name: Verify the APK
+        run: |
+          APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
+          
+          if [ ! -f "$APK_PATH" ]; then
+            echo "Error: Expected APK not found at $APK_PATH"
+            echo "Searching inside app/build/outputs/apk:"
+            find app/build/outputs/apk -type f -name "*.apk"
+            exit 1
+          fi
+          
+          if [ ! -s "$APK_PATH" ]; then
+            echo "Error: APK file exists but is empty."
+            exit 1
+          fi
+          
+          echo "APK successfully verified at $APK_PATH"
+
+      - name: Upload debug APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: doomsday-widget-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: Prepare APK release asset
+        id: prepare_asset
+        run: |
+          TEMP_DIR=$(mktemp -d)
+          ASSET_NAME="doomsday-widget-debug-build-${{ github.run_number }}.apk"
+          ASSET_PATH="$TEMP_DIR/$ASSET_NAME"
+          
+          cp app/build/outputs/apk/debug/app-debug.apk "$ASSET_PATH"
+          echo "Asset prepared at: $ASSET_PATH"
+          
+          echo "asset_path=$ASSET_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Publish APK to GitHub Releases
+        id: create_release
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh --version
+          
+          ASSET_PATH="${{ steps.prepare_asset.outputs.asset_path }}"
+          
+          if [ ! -f "$ASSET_PATH" ]; then
+            echo "Error: Release asset not found at $ASSET_PATH"
+            exit 1
+          fi
+          
+          if [ ! -s "$ASSET_PATH" ]; then
+            echo "Error: Release asset is empty."
+            exit 1
+          fi
+          
+          TAG_NAME="doomsday-build-${{ github.run_number }}-${{ github.run_attempt }}"
+          RELEASE_TITLE="Doomsday Widget Debug Build #${{ github.run_number }}"
+          
+          gh release create "$TAG_NAME" "$ASSET_PATH" \
+            --title "$RELEASE_TITLE" \
+            --target "${{ github.sha }}" \
+            --notes "- This is an automatically generated debug APK for the \"Doomsday Sci-Fi HUD Widget App\".
+          - The APK was built by GitHub Actions.
+          - GitHub Actions run number: ${{ github.run_number }}
+          - GitHub Actions run attempt: ${{ github.run_attempt }}
+          - Target commit SHA: ${{ github.sha }}
+          - The APK is intended for testing on personal devices.
+          - The APK is signed only with a temporary debug keystore."
+
+      - name: Report APK download result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ steps.create_release.outcome }}" == "success" ]; then
+            TAG_NAME="doomsday-build-${{ github.run_number }}-${{ github.run_attempt }}"
+            echo "✅ GitHub Release successfully created!"
+            echo "Release Tag: $TAG_NAME"
+            echo "Release Title: Doomsday Widget Debug Build #${{ github.run_number }}"
+            
+            RELEASE_URL=$(gh release view "$TAG_NAME" --json url --jq .url || echo "https://github.com/${{ github.repository }}/releases/tag/$TAG_NAME")
+            echo "URL: $RELEASE_URL"
+            
+            echo "The Widget APK can be downloaded from the release Assets section."
+          else
+            echo "⚠️ Release publishing failed, but the APK is still available as a GitHub Actions Artifact."
+          fi
