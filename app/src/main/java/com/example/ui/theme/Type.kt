@@ -34,3 +34,8 @@ val Typography = Typography(
         letterSpacing = 0.5.sp,
     )
 )
+
+val KalpurushFont = GoogleFont("Kalpurush")
+val KalpurushFamily = FontFamily(
+    Font(googleFont = KalpurushFont, fontProvider = provider)
+)

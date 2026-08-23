@@ -368,7 +368,7 @@ fun EditRoutineDialog(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("Edit Routine: ${routine.dateStr}", color = DoomGreen, fontWeight = FontWeight.Bold, fontFamily = OrbitronFamily, fontSize = (18 * scale).sp)
+                Text("Edit Routine: ${routine.displayDate}", color = DoomGreen, fontWeight = FontWeight.Bold, fontFamily = OrbitronFamily, fontSize = (18 * scale).sp)
                 
                 OutlinedTextField(
                     value = morning,

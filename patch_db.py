@@ -1,4 +1,62 @@
-package com.example.data
+import re
+
+with open('app/src/main/java/com/example/data/RoutineEntity.kt', 'w') as f:
+    f.write('''package com.example.data
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "routines")
+data class RoutineEntity(
+    @PrimaryKey val dateKey: String, // format "yyyy-MM-dd"
+    val displayDate: String,
+    val phase: String,
+    val morning: String,
+    val noon: String,
+    val night: String,
+    val target: String,
+    val ratio: String = "3:1"
+)
+''')
+
+with open('app/src/main/java/com/example/data/RoutineDao.kt', 'w') as f:
+    f.write('''package com.example.data
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface RoutineDao {
+    @Query("SELECT * FROM routines WHERE dateKey = :dateKey LIMIT 1")
+    fun getRoutineByDateKey(dateKey: String): Flow<RoutineEntity?>
+
+    @Query("SELECT * FROM routines WHERE dateKey = :dateKey LIMIT 1")
+    fun getRoutineByDateKeySync(dateKey: String): RoutineEntity?
+
+    @Query("SELECT COUNT(*) FROM routines")
+    suspend fun getCount(): Int
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(routines: List<RoutineEntity>)
+
+    @Update
+    suspend fun updateRoutine(routine: RoutineEntity)
+}
+''')
+
+with open('app/src/main/java/com/example/data/AppDatabase.kt', 'r') as f:
+    content = f.read()
+
+content = content.replace('version = 1', 'version = 2')
+with open('app/src/main/java/com/example/data/AppDatabase.kt', 'w') as f:
+    f.write(content)
+
+with open('app/src/main/java/com/example/data/RoutineRepository.kt', 'w') as f:
+    f.write('''package com.example.data
 
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -43,3 +101,5 @@ class RoutineRepository(private val routineDao: RoutineDao) {
         }
     }
 }
+''')
+

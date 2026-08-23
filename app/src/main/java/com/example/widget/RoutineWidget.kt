@@ -11,6 +11,7 @@ import androidx.glance.*
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
+import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.color.ColorProvider
 import androidx.glance.ButtonDefaults
@@ -31,6 +32,10 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import com.example.R
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.action.ActionParameters
+import androidx.glance.action.actionParametersOf
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.text.FontFamily
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.LocalSize
@@ -69,7 +74,7 @@ class RoutineWidget : GlanceAppWidget() {
             val dateStr = currentDate.format(DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH))
 
             val routine = runBlocking {
-                AppDatabase.getDatabase(context).routineDao().getRoutineByDate(dateStr).firstOrNull()
+                AppDatabase.getDatabase(context).routineDao().getRoutineByDateKey(currentDate.toString()).firstOrNull()
             }
 
             WidgetContent(dateStr, routine)
@@ -92,6 +97,7 @@ fun WidgetContent(dateStr: String, routine: RoutineEntity?) {
         "SansSerif" -> FontFamily.SansSerif
         "Orbitron" -> FontFamily("orbitron")
         "Hind Siliguri" -> FontFamily("hind_siliguri")
+        "Kalpurush" -> FontFamily("kalpurush")
         else -> FontFamily.Monospace
     }
     
@@ -143,9 +149,10 @@ fun WidgetContent(dateStr: String, routine: RoutineEntity?) {
                 )
                 
                 Box(contentAlignment = Alignment.Center) {
-                    Text(dateStr.uppercase(), style = TextStyle(color = DangerRed, fontSize = (28 * scale).sp, fontWeight = FontWeight.Bold, fontFamily = fontFamily), modifier = GlanceModifier.padding(end = 3.dp))
-                    Text(dateStr.uppercase(), style = TextStyle(color = ThemePrimary, fontSize = (28 * scale).sp, fontWeight = FontWeight.Bold, fontFamily = fontFamily), modifier = GlanceModifier.padding(start = 3.dp))
-                    Text(dateStr.uppercase(), style = TextStyle(color = White, fontSize = (28 * scale).sp, fontWeight = FontWeight.Bold, fontFamily = fontFamily))
+                    val displayTxt = routine?.displayDate?.uppercase() ?: dateStr.uppercase()
+                    Text(displayTxt, style = TextStyle(color = DangerRed, fontSize = (28 * scale).sp, fontWeight = FontWeight.Bold, fontFamily = fontFamily), modifier = GlanceModifier.padding(end = 3.dp))
+                    Text(displayTxt, style = TextStyle(color = ThemePrimary, fontSize = (28 * scale).sp, fontWeight = FontWeight.Bold, fontFamily = fontFamily), modifier = GlanceModifier.padding(start = 3.dp))
+                    Text(displayTxt, style = TextStyle(color = White, fontSize = (28 * scale).sp, fontWeight = FontWeight.Bold, fontFamily = fontFamily))
                 }
 
                 Text(
@@ -157,7 +164,16 @@ fun WidgetContent(dateStr: String, routine: RoutineEntity?) {
 
             // Right: DAILY OVERRIDE + Target text
             Column(modifier = GlanceModifier.defaultWeight(), horizontalAlignment = Alignment.End) {
-                Text("DAILY OVERRIDE", style = TextStyle(color = ThemePrimary, fontSize = (12 * scale).sp, fontWeight = FontWeight.Bold, fontFamily = fontFamily))
+                Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
+                    if (routine != null) {
+                        Text(
+                            text = "🔄 ${routine.ratio}",
+                            style = TextStyle(color = ThemePrimary, fontSize = (12 * scale).sp, fontWeight = FontWeight.Bold, fontFamily = fontFamily),
+                            modifier = GlanceModifier.padding(end = 6.dp).clickable(actionRunCallback<CycleRatioActionCallback>(actionParametersOf(ActionParameters.Key<String>("dateKey") to routine.dateKey)))
+                        )
+                    }
+                    Text("DAILY OVERRIDE", style = TextStyle(color = ThemePrimary, fontSize = (12 * scale).sp, fontWeight = FontWeight.Bold, fontFamily = fontFamily))
+                }
                 if (routine != null) {
                     Text(
                         text = routine.target.uppercase(),
@@ -224,5 +240,28 @@ fun WidgetMechaCard(title: String, content: String, color: Color, scale: Float, 
                 maxLines = 4
             )
         }
+    }
+}
+
+
+
+class CycleRatioActionCallback : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        val dateKeyParam = ActionParameters.Key<String>("dateKey")
+        val dateKey = parameters[dateKeyParam] ?: return
+        
+        val db = AppDatabase.getDatabase(context)
+        val routine = db.routineDao().getRoutineByDateKeySync(dateKey) ?: return
+        
+        val ratios = listOf("3:1", "3:2", "3:3", "2:1", "2:2", "4:1", "1:2", "2:4")
+        val currentIndex = ratios.indexOf(routine.ratio)
+        val nextIndex = (currentIndex + 1) % ratios.size
+        
+        db.routineDao().updateRoutine(routine.copy(ratio = ratios[nextIndex]))
+        RoutineWidget().update(context, glanceId)
     }
 }

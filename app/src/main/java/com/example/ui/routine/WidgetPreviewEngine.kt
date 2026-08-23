@@ -18,6 +18,7 @@ import com.example.ui.theme.DangerRed
 import com.example.ui.theme.ThorCyan
 import com.example.ui.theme.OrbitronFamily
 import com.example.ui.theme.HindSiliguriFamily
+import com.example.ui.theme.KalpurushFamily
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -31,6 +32,7 @@ fun WidgetPreviewEngine(scale: Float, opacity: Float, themeHex: String, fontPref
         "SansSerif" -> FontFamily.SansSerif
         "Orbitron" -> OrbitronFamily
         "Hind Siliguri" -> HindSiliguriFamily
+        "Kalpurush" -> KalpurushFamily
         else -> FontFamily.Monospace
     }
     

@@ -1,4 +1,7 @@
-package com.example.ui.routine
+import re
+
+with open('app/src/main/java/com/example/ui/routine/RoutineViewModel.kt', 'w') as f:
+    f.write('''package com.example.ui.routine
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -68,30 +71,6 @@ class RoutineViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
-
-    fun addNext30Days() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val latestDate = _currentDate.value
-                for (i in 1..30) {
-                    val newDate = latestDate.plusDays(i.toLong())
-                    repository.updateRoutine(
-                        RoutineEntity(
-                            dateKey = newDate.toString(),
-                            displayDate = "${newDate.dayOfMonth} Month",
-                            phase = "Phase X",
-                            target = "NEW TARGET ASSIGNED",
-                            morning = "Pending data upload...",
-                            noon = "Pending data upload...",
-                            night = "Pending data upload...",
-                            ratio = "3:1"
-                        )
-                    )
-                }
-            }
-            withContext(Dispatchers.Main) {
-                RoutineWidget().updateAll(getApplication())
-            }
-        }
-    }
 }
+''')
+

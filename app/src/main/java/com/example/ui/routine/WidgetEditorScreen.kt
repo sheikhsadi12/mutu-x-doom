@@ -122,7 +122,7 @@ fun WidgetEditorScreen(onBack: () -> Unit) {
                 Text("FONT FAMILY", color = Color.White, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("Monospace", "Orbitron", "Hind Siliguri").forEach { font ->
+                    listOf("Monospace", "Orbitron", "Hind Siliguri", "Kalpurush").forEach { font ->
                         Button(
                             onClick = { fontFamily = font; saveAndSync() },
                             colors = ButtonDefaults.buttonColors(
